@@ -48,6 +48,7 @@
 #include <uORB/topics/distance_sensor.h>
 #include <uORB/topics/vision_position_estimate.h>
 #include <uORB/topics/att_pos_mocap.h>
+#include <uORB/topics/vehicle_land_detected.h>
 
 // publications
 #include <uORB/topics/vehicle_attitude.h>
@@ -63,14 +64,15 @@ using namespace matrix;
  *
  * inspired by: https://hal.archives-ouvertes.fr/hal-00494342/document
  *
- * Also see python directory for simulation and python version.
+ * See: https://github.com/jgoppert/iekf_analysisa for derivation/ simulation
  */
 class IEKF
 {
 public:
 	IEKF();
 	void init();
-	Vector<float, X::n> dynamics(float t, const Vector<float, X::n> &x, const Vector<float, U::n> &u);
+	Vector<float, X::n> dynamics(float t, const Vector<float, X::n> &x,
+				     const Vector<float, U::n> &u);
 	bool ok() { return _nh.ok(); }
 	void callbackImu(const sensor_combined_s *msg);
 	void initializeAttitude(const sensor_combined_s *msg);
@@ -85,6 +87,7 @@ public:
 	void correctLidar(const distance_sensor_s *msg);
 	void correctVision(const vision_position_estimate_s *msg);
 	void correctMocap(const att_pos_mocap_s *msg);
+	void correctLand(const vehicle_land_detected_s *msg);
 	void predict(float dt);
 	Vector<float, X::n> applyErrorCorrection(const Vector<float, Xe::n> &d_xe);
 	void setP(const SquareMatrix<float, Xe::n> &P);
@@ -125,6 +128,7 @@ private:
 	Sensor _sensorLidar;
 	Sensor _sensorVision;
 	Sensor _sensorMocap;
+	Sensor _sensorLand;
 
 	// subscriptions
 	ros::Subscriber _subImu;
@@ -134,6 +138,7 @@ private:
 	ros::Subscriber _subDistance;
 	ros::Subscriber _subVision;
 	ros::Subscriber _subMocap;
+	ros::Subscriber _subLand;
 
 	// publishers
 	ros::Publisher _pubAttitude;

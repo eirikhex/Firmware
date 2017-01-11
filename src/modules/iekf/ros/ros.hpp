@@ -226,7 +226,8 @@ public:
 
 	template <class MsgType, class ObjType>
 	Subscriber subscribe(const char *topic, size_t queue_size,
-			     void (ObjType::*cb)(const MsgType *msg), ObjType *obj)
+			     void (ObjType::*cb)(const MsgType *msg), ObjType *obj,
+			     unsigned interval = 0, int instance = 0)
 	{
 		const struct orb_metadata *meta = NULL;
 
@@ -241,7 +242,7 @@ public:
 		}
 
 		CallbackInterface *cb_impl = new CallbackImpl<MsgType, ObjType>(
-			meta, 0, 0, cb, obj);
+			meta, interval, instance, cb, obj);
 		return Subscriber(cb_impl);
 	}
 

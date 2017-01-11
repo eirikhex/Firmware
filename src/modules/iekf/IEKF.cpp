@@ -44,11 +44,12 @@ IEKF::IEKF() :
 	_sensorBaro("baro", betaMaxDefault, condMaxDefault),
 	_sensorGps("gps", betaMaxDefault, condMaxDefault),
 	_sensorAirspeed("airspeed", betaMaxDefault, condMaxDefault),
-	_sensorFlow("flow", betaMaxDefault, condMaxDefault),
+	_sensorFlow("flow", 100, condMaxDefault),
 	_sensorSonar("sonar", betaMaxDefault, condMaxDefault),
 	_sensorLidar("lidar", betaMaxDefault, condMaxDefault),
 	_sensorVision("vision", betaMaxDefault, condMaxDefault),
 	_sensorMocap("mocap", betaMaxDefault, condMaxDefault),
+	_sensorLand("land_detected", betaMaxDefault, condMaxDefault),
 	// subscriptions
 	_subImu(),
 	_subGps(),
@@ -57,6 +58,7 @@ IEKF::IEKF() :
 	_subDistance(),
 	_subVision(),
 	_subMocap(),
+	_subLand(),
 	// publications
 	_pubAttitude(),
 	_pubLocalPosition(),
@@ -169,6 +171,7 @@ void IEKF::init()
 	_subDistance = _nh.subscribe("distance_sensor", 0, &IEKF::callbackDistance, this);
 	_subVision = _nh.subscribe("vision_position_estimate", 0, &IEKF::correctVision, this);
 	_subMocap = _nh.subscribe("att_pos_mocap", 0, &IEKF::correctMocap, this);
+	_subLand = _nh.subscribe("vehicle_land_detected", 0, &IEKF::correctLand, this);
 
 	// publications
 	_pubAttitude = _nh.advertise<vehicle_attitude_s>("vehicle_attitude", 0);

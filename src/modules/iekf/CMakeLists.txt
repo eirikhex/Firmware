@@ -48,6 +48,7 @@ px4_add_module(
 		corrections/mocap.cpp
 		corrections/sonar.cpp
 		corrections/vision.cpp
+		corrections/land.cpp
 		IEKF.cpp
 		iekf_main.cpp
 	DEPENDS

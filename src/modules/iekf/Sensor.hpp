@@ -101,9 +101,7 @@ public:
 		_beta = beta;
 		_cond = cond;
 
-		// warn if beta over 1, beta max used to
-		// threshold when correction is not used
-		if (beta > 1) {
+		if (beta > _betaMax) {
 			ROS_WARN("%s fault: beta %10.4f", _name, double(beta));
 		}
 
@@ -145,7 +143,7 @@ public:
 		Matrix<Type, n_x, n_y> K = P * H.T() * tmp;
 		setCorrectionInfo(beta, cond);
 
-		if (beta > 1.0f) {
+		if (beta > _betaMax) {
 			ROS_INFO("residual");
 			r.print();
 		};

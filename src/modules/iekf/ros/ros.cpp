@@ -16,6 +16,7 @@
 #include <uORB/topics/vehicle_global_position.h>
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/estimator_status.h>
+#include <uORB/topics/vehicle_land_detected.h>
 
 namespace ros
 {
@@ -81,6 +82,7 @@ Node::Node() :
 	_topicDict.put("vehicle_global_position", ORB_ID(vehicle_global_position));
 	_topicDict.put("control_state", ORB_ID(control_state));
 	_topicDict.put("estimator_status", ORB_ID(estimator_status));
+	_topicDict.put("vehicle_land_detected", ORB_ID(vehicle_land_detected));
 }
 
 void Node::spin()

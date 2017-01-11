@@ -122,6 +122,16 @@ struct Y_accel {
 };
 
 /**
+ * Land enum
+ */
+struct Y_land {
+	static const uint8_t vel_N = 0;
+	static const uint8_t vel_E = 1;
+	static const uint8_t agl = 2;
+	static const uint8_t n = 3;
+};
+
+/**
  * GPS measurement
  */
 struct Y_gps {
@@ -210,7 +220,7 @@ static const float BETA_TABLE[] = {
 
 // guesses
 static const float wind_correlation_time = 1000; // s
-static const float flow_sigma_rw = 1e-3f; // m/s / sqrt(s)
+static const float flow_sigma_rw = 1e-1f; // m/s / sqrt(s)
 
 static const float gps_xy_sigma_rw = 5e-1f; // m / sqrt(s)
 static const float gps_vxy_sigma_rw = 5e-2f; // (m/s) / sqrt(s)
@@ -248,6 +258,9 @@ static const float baro_correlation_time = 1e3; // s
 static const float mag_sigma_rw = 4.7e-3f; // rad / sqrt(s)
 static const float mag_sigma_rrw = 0; // (ga/s) / sqrt(s)
 static const float mag_correlation_time = 500; // s
+
+static const float land_sigma_vxy = 0.05f; // m/s
+static const float land_sigma_agl = 0.03f; // m
 
 #else
 
