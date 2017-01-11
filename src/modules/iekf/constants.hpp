@@ -233,6 +233,10 @@ static const float process_noise_sigma_z = 0; // (m) / sqrt(s)
 static const float process_noise_sigma_vz = 0; // (m/s) / sqrt(s)
 static const float process_noise_sigma_rot = 0; // (rad) / sqrt(s)
 
+// artifical landed measurement of velocity and agl
+static const float land_sigma_vxy = 1e-1f; // m/s
+static const float land_sigma_agl = 1e-1; // m
+
 //-----------------------------------------------------------------
 
 #ifdef CONFIG_ARCH_BOARD_SITL
@@ -258,9 +262,6 @@ static const float baro_correlation_time = 1e3; // s
 static const float mag_sigma_rw = 4.7e-3f; // rad / sqrt(s)
 static const float mag_sigma_rrw = 0; // (ga/s) / sqrt(s)
 static const float mag_correlation_time = 500; // s
-
-static const float land_sigma_vxy = 1e-1f; // m/s
-static const float land_sigma_agl = 1e-1; // m
 
 #else
 
