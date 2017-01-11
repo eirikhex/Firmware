@@ -77,6 +77,8 @@ IEKF::IEKF() :
 	_origin(),
 	_baroAsl(0),
 	_baroOffset(0),
+	_landed(true),
+	_freefall(false),
 	_gpsUSec(0),
 	_magDeclDeg(0),
 	_magInclDeg(0),
@@ -134,9 +136,9 @@ IEKF::IEKF() :
 	setX(_x0);
 
 	// initialize covariance
-	_P0Diag(Xe::rot_N) = 1;
-	_P0Diag(Xe::rot_E) = 1;
-	_P0Diag(Xe::rot_D) = 3;
+	_P0Diag(Xe::rot_N) = 1e-3f;
+	_P0Diag(Xe::rot_E) = 1e-3f;
+	_P0Diag(Xe::rot_D) = 1e-3f;
 	_P0Diag(Xe::vel_N) = 1e-1;
 	_P0Diag(Xe::vel_E) = 1e-1;
 	_P0Diag(Xe::vel_D) = 1e-1;
@@ -171,7 +173,7 @@ void IEKF::init()
 	_subDistance = _nh.subscribe("distance_sensor", 0, &IEKF::callbackDistance, this);
 	_subVision = _nh.subscribe("vision_position_estimate", 0, &IEKF::correctVision, this);
 	_subMocap = _nh.subscribe("att_pos_mocap", 0, &IEKF::correctMocap, this);
-	_subLand = _nh.subscribe("vehicle_land_detected", 0, &IEKF::correctLand, this);
+	_subLand = _nh.subscribe("vehicle_land_detected", 0, &IEKF::callbackLand, this);
 
 	// publications
 	_pubAttitude = _nh.advertise<vehicle_attitude_s>("vehicle_attitude", 0);
@@ -264,6 +266,7 @@ void IEKF::callbackImu(const sensor_combined_s *msg)
 	_u(U::accel_bZ) = msg->accelerometer_m_s2[2];
 
 	if (_attitudeInitialized) {
+
 		// predict driven by gyro callback
 		if (msg->gyro_integral_dt > 0) {
 			predict(msg->gyro_integral_dt);
@@ -275,6 +278,10 @@ void IEKF::callbackImu(const sensor_combined_s *msg)
 		correctMag(msg);
 
 		correctBaro(msg);
+
+		if (_landed) {
+			correctLand();
+		}
 
 	} else {
 		initializeAttitude(msg);

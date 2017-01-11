@@ -33,9 +33,9 @@
 
 #include "../IEKF.hpp"
 
-void IEKF::correctLand(const vehicle_land_detected_s *msg)
+void IEKF::callbackLand(const vehicle_land_detected_s *msg)
 {
-	ROS_INFO("correct land");
+	//ROS_INFO("callback land");
 	// return if no new data
 	float dt = 0;
 
@@ -43,6 +43,12 @@ void IEKF::correctLand(const vehicle_land_detected_s *msg)
 		return;
 	}
 
+	_landed = msg->landed;
+	_freefall = msg->freefall;
+}
+
+void IEKF::correctLand()
+{
 	// calculate residual
 	Vector<float, Y_land::n> y;
 	y(Y_land::vel_N) = 0;
@@ -50,9 +56,9 @@ void IEKF::correctLand(const vehicle_land_detected_s *msg)
 	y(Y_land::agl) = 0;
 
 	Vector<float, Y_land::n> yh;
-	y(Y_land::vel_N) = _x(X::vel_N);
-	y(Y_land::vel_E) = _x(X::vel_E);
-	y(Y_land::agl) = _x(X::asl) - _x(X::terrain_asl);
+	yh(Y_land::vel_N) = _x(X::vel_N);
+	yh(Y_land::vel_E) = _x(X::vel_E);
+	yh(Y_land::agl) = _x(X::asl) - _x(X::terrain_asl);
 
 	Vector<float, Y_land::n> r = y - yh;
 

@@ -259,8 +259,8 @@ static const float mag_sigma_rw = 4.7e-3f; // rad / sqrt(s)
 static const float mag_sigma_rrw = 0; // (ga/s) / sqrt(s)
 static const float mag_correlation_time = 500; // s
 
-static const float land_sigma_vxy = 0.05f; // m/s
-static const float land_sigma_agl = 0.03f; // m
+static const float land_sigma_vxy = 1e-1f; // m/s
+static const float land_sigma_agl = 1e-1; // m
 
 #else
 

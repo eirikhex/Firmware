@@ -87,7 +87,8 @@ public:
 	void correctLidar(const distance_sensor_s *msg);
 	void correctVision(const vision_position_estimate_s *msg);
 	void correctMocap(const att_pos_mocap_s *msg);
-	void correctLand(const vehicle_land_detected_s *msg);
+	void callbackLand(const vehicle_land_detected_s *msg);
+	void correctLand();
 	void predict(float dt);
 	Vector<float, X::n> applyErrorCorrection(const Vector<float, Xe::n> &d_xe);
 	void setP(const SquareMatrix<float, Xe::n> &P);
@@ -159,6 +160,8 @@ private:
 	Origin _origin; 				// origin of local coordinate system
 	float _baroAsl; 				// pressure altitude from baro
 	float _baroOffset; 				// pressure offset
+	bool _landed;					// are we landed?
+	bool _freefall;					// are we freefalling?
 	uint64_t _gpsUSec; 				// gps internal timestamp
 	float _magDeclDeg; 				// magnetic declination (change in magnetic heading angle), deg
 	float _magInclDeg; 				// magnetic inclination (angle from horizon of field lines), deg
