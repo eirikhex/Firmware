@@ -220,7 +220,7 @@ static const float BETA_TABLE[] = {
 
 // guesses
 static const float wind_correlation_time = 1000; // s
-static const float flow_sigma_rw = 1e-1f; // m/s / sqrt(s)
+static const float flow_sigma_rw = 1e-3f; // m/s / sqrt(s)
 
 static const float gps_xy_sigma_rw = 5e-1f; // m / sqrt(s)
 static const float gps_vxy_sigma_rw = 5e-2f; // (m/s) / sqrt(s)

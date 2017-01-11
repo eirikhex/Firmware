@@ -100,19 +100,22 @@ public:
 	};
 	bool getVelocityValid()
 	{
-		return (_P(Xe::vel_N, Xe::vel_N)
-			+ _P(Xe::vel_E, Xe::vel_E)
-			+ _P(Xe::vel_D, Xe::vel_D)) < 1.0f;
+		return true;
+		//return (_P(Xe::vel_N, Xe::vel_N)
+		//+ _P(Xe::vel_E, Xe::vel_E)
+		//+ _P(Xe::vel_D, Xe::vel_D)) < 1.0f;
 	};
 	bool getPositionValid()
 	{
-		return (_P(Xe::pos_N, Xe::pos_N)
-			+ _P(Xe::pos_E, Xe::pos_E)
-			+ _P(Xe::asl, Xe::asl)) < 1.0f;
+		return true;
+		//return (_P(Xe::pos_N, Xe::pos_N)
+		//+ _P(Xe::pos_E, Xe::pos_E)
+		//+ _P(Xe::asl, Xe::asl)) < 1.0f;
 	};
 	bool getTerrainValid()
 	{
-		return _origin.altInitialized() && _P(Xe::terrain_asl, Xe::terrain_asl) < 1.0f;
+		return true;
+		//return _origin.altInitialized() && _P(Xe::terrain_asl, Xe::terrain_asl) < 1.0f;
 	};
 
 private:

@@ -44,7 +44,7 @@ IEKF::IEKF() :
 	_sensorBaro("baro", betaMaxDefault, condMaxDefault),
 	_sensorGps("gps", betaMaxDefault, condMaxDefault),
 	_sensorAirspeed("airspeed", betaMaxDefault, condMaxDefault),
-	_sensorFlow("flow", 100, condMaxDefault),
+	_sensorFlow("flow", 1e9f * betaMaxDefault, condMaxDefault),
 	_sensorSonar("sonar", betaMaxDefault, condMaxDefault),
 	_sensorLidar("lidar", betaMaxDefault, condMaxDefault),
 	_sensorVision("vision", betaMaxDefault, condMaxDefault),
@@ -228,22 +228,18 @@ Vector<float, X::n> IEKF::dynamics(float t, const Vector<float, X::n> &x, const 
 	//ROS_INFO("accel scale: %10.4f",
 	//double(_x(X::accel_scale)));
 
-	if (getVelocityValid()) {
-		dx(X::vel_N) = as_n(0);
-		dx(X::vel_E) = as_n(1);
-		dx(X::vel_D) = as_n(2);
-	}
+	dx(X::vel_N) = as_n(0);
+	dx(X::vel_E) = as_n(1);
+	dx(X::vel_D) = as_n(2);
 
 	dx(X::gyro_bias_bX) = -_x(X::gyro_bias_bX) / gyro_correlation_time;
 	dx(X::gyro_bias_bY) = -_x(X::gyro_bias_bY) / gyro_correlation_time;
 	dx(X::gyro_bias_bZ) = -_x(X::gyro_bias_bZ) / gyro_correlation_time;
 	dx(X::accel_scale) = 0; // TODO
 
-	if (getPositionValid()) {
-		dx(X::pos_N) = x(X::vel_N);
-		dx(X::pos_E) = x(X::vel_E);
-		dx(X::asl) = -x(X::vel_D);
-	}
+	dx(X::pos_N) = x(X::vel_N);
+	dx(X::pos_E) = x(X::vel_E);
+	dx(X::asl) = -x(X::vel_D);
 
 	// want terrain dynamics to be static, so when out of range it keeps
 	// last estimate and doesn't decay
