@@ -379,6 +379,8 @@ class MavrosMissionTest(unittest.TestCase):
         data = px4tools.ulog.read_ulog(last_log).resample_and_concat(0.1)
         res = px4tools.estimator_analysis(data, False)
 
+        rospy.loginfo("test results:\n{:s}".format(str(res)))
+
         # enforce performance
         self.assertTrue(abs(res['roll_error_mean'])  < 5.0, str(res))
         self.assertTrue(abs(res['pitch_error_mean']) < 5.0, str(res))

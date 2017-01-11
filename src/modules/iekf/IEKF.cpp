@@ -132,9 +132,9 @@ IEKF::IEKF() :
 	setX(_x0);
 
 	// initialize covariance
-	_P0Diag(Xe::rot_N) = 1e-3;
-	_P0Diag(Xe::rot_E) = 1e-3;
-	_P0Diag(Xe::rot_D) = 1e-1;
+	_P0Diag(Xe::rot_N) = 1;
+	_P0Diag(Xe::rot_E) = 1;
+	_P0Diag(Xe::rot_D) = 3;
 	_P0Diag(Xe::vel_N) = 1e-1;
 	_P0Diag(Xe::vel_E) = 1e-1;
 	_P0Diag(Xe::vel_D) = 1e-1;

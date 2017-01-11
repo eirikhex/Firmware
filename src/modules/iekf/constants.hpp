@@ -212,8 +212,8 @@ static const float BETA_TABLE[] = {
 static const float wind_correlation_time = 1000; // s
 static const float flow_sigma_rw = 1e-3f; // m/s / sqrt(s)
 
-static const float gps_xy_sigma_rw = 1e0f; // m / sqrt(s)
-static const float gps_vxy_sigma_rw = 1e-1f; // (m/s) / sqrt(s)
+static const float gps_xy_sigma_rw = 5e-1f; // m / sqrt(s)
+static const float gps_vxy_sigma_rw = 5e-2f; // (m/s) / sqrt(s)
 static const float gps_z_sigma_rw = 2e0f; // m / sqrt(s)
 static const float gps_vz_sigma_rw = 1e0f; // (m/s) / sqrt(s)
 
@@ -228,7 +228,9 @@ static const float process_noise_sigma_rot = 0; // (rad) / sqrt(s)
 #ifdef CONFIG_ARCH_BOARD_SITL
 
 // SITL
-static const float magDeclDeg = 2.23f;
+static const float magDeclDeg = -0.745;
+// zurich decl output from sitl code is -0.745 deg, should be 2.05
+// possibly outdated mag model (2014)
 static const float magInclDeg = 63.3f;
 
 static const float gyro_sigma_rw = 4.6e-4f; // rad / sqrt(s)
