@@ -68,9 +68,11 @@ def get_last_log():
     try:
         log_path = os.environ['PX4_LOG_DIR']
     except KeyError:
-        log_path = os.path.join(os.environ['HOME'], 'ros/rootfs/fs/microsd/log')
+        log_path = os.path.join(os.environ['HOME'], '.ros/rootfs/fs/microsd/log')
+    rospy.loginfo("log path %s", log_path)
     last_log_dir = sorted(
         glob.glob(os.path.join(log_path, '*')))[-1]
+    rospy.loginfo("last log dir %s", last_log_dir)
     last_log = sorted(glob.glob(os.path.join(last_log_dir, '*.ulg')))[-1]
     return last_log
 
