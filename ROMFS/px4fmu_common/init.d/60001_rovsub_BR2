@@ -1,0 +1,32 @@
+#!nsh
+#
+# @name BlueROV 2 Vectored
+#
+# @type Underwater drone
+#
+# @maintainer Eirik Hexeberg Henriksen <eirik.henriksen@ntnu.no>
+#
+# @output MAIN1 motor1 (front right: CW)
+# @output MAIN2 motor2 (front left: CW)
+# @output MAIN3 motor3 (back right: CCW)
+# @output MAIN4 motor4 (back left: CW)
+# @output MAIN5 motor5 (vertical right: CW)
+# @output MAIN6 motor6 (vertical left: CCW)
+#
+# @output MAIN7 Lumen lights
+# @output MAIN8 camera tilt servo
+#
+
+
+
+# Enable servo output on pins 3 and 4 (steering and thrust)
+# but also include 1+2 as they form together one output group
+# and need to be set together.
+
+set PWM_OUT 12345678
+
+#choose a mixer, for rover control we need a plain passthrough to the servos
+set MIXER
+
+
+# start apps
