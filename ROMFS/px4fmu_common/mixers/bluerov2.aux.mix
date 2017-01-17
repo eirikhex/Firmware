@@ -1,0 +1,26 @@
+BlueROV2 Underwater drone mixer
+=====================
+
+This file defines mixers suitable for controlling an underwater drone with a
+6 thruster vectored setupp using PX4FMU.
+
+Inputs to the mixer come from channel group 0 (vehicle), channels 0
+(forward thrust), 1 (lateral thrust), 2 (vertical thrust) and 3 (thrust).
+
+See the README for more information on the scaler format.
+
+Lightenig Scaler
+-------------
+Four scalers total (output, light dimmer).
+
+M: 1
+O:      10000  10000      0         -10000  10000
+S: 2 0  0      20000      -10000    -10000  10000
+
+Camera tilt Scaler
+-------------
+Four scalers total (output, tilt servo).
+
+M: 1
+O:      10000  10000      0         -10000  10000
+S: 2 1  10000  10000      0         -10000  10000
