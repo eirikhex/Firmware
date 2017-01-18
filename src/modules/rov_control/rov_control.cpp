@@ -56,6 +56,7 @@
 #include <uORB/topics/manual_control_setpoint.h>
 #include <uORB/topics/actuator_controls.h>
 #include <uORB/topics/actuator_armed.h>
+#include <uORB/topics/debug_key_value.h>
 
 #include <systemlib/param/param.h>
 #include <systemlib/err.h>
@@ -104,6 +105,7 @@ private:
 	struct manual_control_setpoint_s	_manual_control_sp;	/**< manual control setpoint */
 	struct actuator_controls_s			_actuators;			/**< actuator controls */
 	struct actuator_armed_s				_armed;				/**< actuator arming status */
+	
 
 	perf_counter_t	_loop_perf;			/**< loop performance counter */
 
@@ -198,6 +200,7 @@ ROVControl::task_main()
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
 	_armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 
+
 	vehicle_manual_poll();
 	arming_status_poll();
 	parameters_update();
@@ -207,23 +210,32 @@ ROVControl::task_main()
 	px4_pollfd_struct_t fds[2];
 
 	/* Setup of loop */
-	fds[0].fd = _params_sub;
+	fds[0].fd = _manual_control_sp_sub;
 	fds[0].events = POLLIN;
-	fds[1].fd = _manual_control_sp_sub;
+	fds[1].fd = _params_sub;
 	fds[1].events = POLLIN;
+	
+
+	struct debug_key_value_s dbg = {hrt_absolute_time(), 0, 0.0f, "debug" ,0 }; 
+	orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
 
 	_task_running = true;
 
 	/*main loop*/
 	while (!_task_should_exit) {
 
+
 		/* wait for up to 100ms for data */
+
 		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 100);
+
 
 		/* timed out - periodic check for _task_should_exit, etc. */
 		if (pret == 0) {
+			usleep(200);
 			continue;
 		}
+
 
 		/* this is undesirable but not much we can do - might want to flag unhappy status */
 		if (pret < 0) {
@@ -231,10 +243,11 @@ ROVControl::task_main()
 			continue;
 		}
 
+
 		perf_begin(_loop_perf);
 
 		/* only update parameters if they changed */
-		if (fds[0].revents & POLLIN) {
+		if (fds[1].revents & POLLIN) {
 			/* read from param to clear updated flag */
 			struct parameter_update_s update;
 			orb_copy(ORB_ID(parameter_update), _params_sub, &update);
@@ -244,7 +257,7 @@ ROVControl::task_main()
 		}
 
 		/* only run controller if attitude changed */
-		if (fds[1].revents & POLLIN) {
+		if (fds[0].revents & POLLIN) {
 			static uint64_t last_run = 0;
 			float deltaT = (hrt_absolute_time() - last_run) / 1000000.0f;
 			last_run = hrt_absolute_time();
@@ -254,11 +267,17 @@ ROVControl::task_main()
 				deltaT = 0.01f;
 			}
 
+			vehicle_manual_poll();
+
 			_actuators.control[0] = _manual_control_sp.x;
 			_actuators.control[1] = _manual_control_sp.y;
 			_actuators.control[2] = _manual_control_sp.z;
+			dbg.value = (float)_manual_control_sp.z;
+			orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 			_actuators.control[5] = _manual_control_sp.r;
 			_actuators.timestamp = hrt_absolute_time();
+
+			usleep(100);
 
 			/* publish actuator data*/
 			if (_actuators_0_pub != nullptr) {
