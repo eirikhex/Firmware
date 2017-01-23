@@ -16,11 +16,16 @@
 # @output MAIN8 camera tilt servo
 #
 
-sh /etc/init.d/rc.rov_apps
+set VEHICLE_TYPE uw_drone
 
 set MIXER bluerov2
 set PWM_OUT 12345678
 set PWM_RATE 400
+set PWM_AUX_OUT 12
 
-set MIXER_AUX bluerov2
+param set PWM_DISARMED 1500
+param set PWM_MIN 1100
+param set PWM_MAX 1900
 
+
+echo 

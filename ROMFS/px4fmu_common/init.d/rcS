@@ -971,6 +971,23 @@ then
 	fi
 
 	#
+	# Underwater Drone setup
+	#
+	if [ $VEHICLE_TYPE == uw_drone ]
+	then
+		# 12 is MAV_TYPE_SUB
+		set MAV_TYPE 12
+
+		# Load mixer and configure outputs
+		sh /etc/init.d/rc.interface
+
+		# Start standard rover apps
+		sh /etc/init.d/rc.rov_apps
+
+		param set MAV_TYPE 12
+	fi
+
+	#
 	# For snapdragon, we need a passthrough mode
 	# Do not run any mavlink instances since we need the serial port for
 	# communication with Snapdragon.
