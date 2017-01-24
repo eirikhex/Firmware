@@ -200,6 +200,7 @@ ROVControl::task_main()
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
 	_armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 
+
 	_actuators_id = ORB_ID(actuator_controls_0);
 
 
@@ -284,13 +285,15 @@ ROVControl::task_main()
 			/* publish actuator data*/
 			if (_actuators_0_pub != nullptr) {
 
-				dbg.value = (float)orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
-				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 			} 
 			else if (_actuators_id) {
 				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
 				dbg.value = (float)999.09;
 				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+			} 
+			else if (_actuators_id) {
+				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
 			}
 		}
 
