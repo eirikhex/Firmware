@@ -23,9 +23,6 @@ set PWM_OUT 12345678
 set PWM_RATE 400
 set PWM_AUX_OUT 12
 
-param set PWM_DISARMED 1500
-param set PWM_MIN 1100
-param set PWM_MAX 1900
-
-
-echo 
+set PWM_DISARMED 1500
+set PWM_MIN 1100
+set PWM_MAX 1900

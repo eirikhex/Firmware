@@ -200,6 +200,8 @@ ROVControl::task_main()
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
 	_armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 
+	_actuators_id = ORB_ID(actuator_controls_0);
+
 
 	vehicle_manual_poll();
 	arming_status_poll();
@@ -272,8 +274,8 @@ ROVControl::task_main()
 			_actuators.control[0] = _manual_control_sp.x;
 			_actuators.control[1] = _manual_control_sp.y;
 			_actuators.control[2] = _manual_control_sp.z;
-			dbg.value = (float)_manual_control_sp.z;
-			orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+			_actuators.control[3] = 0.0;
+			_actuators.control[4] = 0.0;
 			_actuators.control[5] = _manual_control_sp.r;
 			_actuators.timestamp = hrt_absolute_time();
 
@@ -282,10 +284,13 @@ ROVControl::task_main()
 			/* publish actuator data*/
 			if (_actuators_0_pub != nullptr) {
 
-				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+				dbg.value = (float)orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 			} 
 			else if (_actuators_id) {
 				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
+				dbg.value = (float)999.09;
+				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 			}
 		}
 

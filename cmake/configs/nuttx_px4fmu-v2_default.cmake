@@ -115,6 +115,7 @@ set(config_module_list
 	#modules/mc_pos_control
 	#modules/vtol_att_control
 	modules/rov_control
+	modules/rov_control_debug
 
 	#
 	# Logging
