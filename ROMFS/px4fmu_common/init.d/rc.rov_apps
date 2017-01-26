@@ -1,0 +1,9 @@
+#!nsh
+#
+# Standard apps for ROVs:
+# att & pos estimator, control
+#
+
+ekf2 start
+
+rov_control start
