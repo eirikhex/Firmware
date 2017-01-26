@@ -284,7 +284,9 @@ ROVControl::task_main()
 
 			/* publish actuator data*/
 			if (_actuators_0_pub != nullptr) {
-
+				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+ 				dbg.value = (float)_manual_control_sp.z;
+ 				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 			} 
 			else if (_actuators_id) {
 				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
@@ -292,9 +294,6 @@ ROVControl::task_main()
 				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
 			} 
-			else if (_actuators_id) {
-				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
-			}
 		}
 
 		
