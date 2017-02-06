@@ -46,7 +46,22 @@
 				"use_only_additional_options": true,
 				"additional_options_file": "${project_path}/Tools/astylerc"
 			}
-		}
+		},
+		"todoreview": 
+		{
+            		"exclude_folders": [
+                	"*.git*",
+                	"*.rst",
+                	"windows",
+                	"*.cmake",
+            		],
+            		"patterns": {
+    				"TODO": "TODO[\\s]*?:[\\s]*(?P<todo>.*)$",
+    				"NOTE": "NOTE[\\s]*?:[\\s]*(?P<note>.*)$",
+    				"FIXME": "FIX ?ME[\\s]*?:[\\s]*(?P<fixme>.*)$",
+    				"CHANGED": "CHANGED[\\s]*?:[\\s]*(?P<changed>.*)$"
+			}
+        	}
 	},
 	"build_systems":
 	[

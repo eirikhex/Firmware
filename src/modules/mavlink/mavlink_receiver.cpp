@@ -124,6 +124,7 @@ MavlinkReceiver::MavlinkReceiver(Mavlink *parent) :
 	_telemetry_status_pub(nullptr),
 	_rc_pub(nullptr),
 	_manual_pub(nullptr),
+	_depth_calib_pub(nullptr),
 	_land_detector_pub(nullptr),
 	_time_offset_pub(nullptr),
 	_follow_target_pub(nullptr),
@@ -222,6 +223,9 @@ MavlinkReceiver::handle_message(mavlink_message_t *msg)
 
 	case MAVLINK_MSG_ID_MANUAL_CONTROL:
 		handle_message_manual_control(msg);
+		break;
+	case MAVLINK_MSG_ID_DEPTH_CALIBRATION:
+		handle_message_depth_calibration(msg);
 		break;
 
 	case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE:
@@ -1497,6 +1501,29 @@ MavlinkReceiver::handle_message_manual_control(mavlink_message_t *msg)
 		} else {
 			orb_publish(ORB_ID(manual_control_setpoint), _manual_pub, &manual);
 		}
+	}
+}
+void
+MavlinkReceiver::handle_message_depth_calibration(mavlink_message_t *msg)
+{
+	mavlink_depth_calibration_t dpt_cal;
+	mavlink_msg_depth_calibration_decode(msg, &dpt_cal);
+
+	struct sensor_depth_calibration_s depth = {};
+	depth.timestamp     = hrt_absolute_time();
+	depth.cal_depth     = dpt_cal.cal_depth;
+	depth.cal_pressure  = dpt_cal.cal_pressure;
+	depth.water_density = dpt_cal.water_density;
+
+
+	if (_depth_calib_pub == nullptr) 
+	{
+		_depth_calib_pub = orb_advertise(ORB_ID(sensor_depth_calibration), &depth);
+
+	} 
+	else 
+	{
+		orb_publish(ORB_ID(sensor_depth_calibration), _depth_calib_pub, &depth);
 	}
 }
 

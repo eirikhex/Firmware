@@ -73,6 +73,7 @@
 #include <uORB/topics/optical_flow.h>
 #include <uORB/topics/position_setpoint_triplet.h>
 #include <uORB/topics/sensor_combined.h>
+#include <uORB/topics/sensor_depth.h>
 #include <uORB/topics/tecs_status.h>
 #include <uORB/topics/telemetry_status.h>
 #include <uORB/topics/transponder_report.h>
@@ -3453,6 +3454,76 @@ protected:
 	}
 };
 
+class MavlinkStreamDepth : public MavlinkStream
+{
+public:
+	const char *get_name() const
+	{
+		return MavlinkStreamDepth::get_name_static();
+	}
+
+	static const char *get_name_static()
+	{
+		return "DEPTH";
+	}
+
+	static uint16_t get_id_static()
+	{
+		return MAVLINK_MSG_ID_DEPTH;
+	}
+
+	uint16_t get_id()
+	{
+		return get_id_static();
+	}
+
+	static MavlinkStream *new_instance(Mavlink *mavlink)
+	{
+		return new MavlinkStreamDepth(mavlink);
+	}
+
+	unsigned get_size()
+	{
+		return (_depth_time > 0) ? MAVLINK_MSG_ID_DEPTH_LEN + MAVLINK_NUM_NON_PAYLOAD_BYTES : 0;
+	}
+
+private:
+	MavlinkOrbSubscription *_depth_sub;
+	uint64_t _depth_time;
+
+	/* do not allow top copying this class */
+	MavlinkStreamDepth(MavlinkStreamDepth &);
+	MavlinkStreamDepth &operator = (const MavlinkStreamDepth &);
+
+protected:
+	explicit MavlinkStreamDepth(Mavlink *mavlink) : MavlinkStream(mavlink),
+		_depth_sub(_mavlink->add_orb_subscription(ORB_ID(sensor_depth))),
+		_depth_time(0)
+	{}
+
+	void send(const hrt_abstime t)
+	{
+		
+		struct sensor_depth_s sensor_depth;
+		bool updated =  _depth_sub->update(&_depth_time, &sensor_depth);
+
+		if(updated)
+		{
+
+			mavlink_depth_t msg = {};
+			msg.abs_pressure	= sensor_depth.abs_pressure;
+			msg.temperature   	= sensor_depth.temperature;
+			msg.diff_pressure 	= sensor_depth.diff_pressure;
+			msg.cal_pressure 	= sensor_depth.cal_pressure;
+			msg.depth 		= sensor_depth.depth;
+			msg.water_density	= sensor_depth.water_density;
+
+			mavlink_msg_depth_send_struct(_mavlink->get_channel(), &msg);
+		}
+	}
+
+};
+
 class MavlinkStreamWind : public MavlinkStream
 {
 public:
@@ -3945,6 +4016,7 @@ const StreamListItem *streams_list[] = {
 	new StreamListItem(&MavlinkStreamDistanceSensor::new_instance, &MavlinkStreamDistanceSensor::get_name_static, &MavlinkStreamDistanceSensor::get_id_static),
 	new StreamListItem(&MavlinkStreamExtendedSysState::new_instance, &MavlinkStreamExtendedSysState::get_name_static, &MavlinkStreamExtendedSysState::get_id_static),
 	new StreamListItem(&MavlinkStreamAltitude::new_instance, &MavlinkStreamAltitude::get_name_static, &MavlinkStreamAltitude::get_id_static),
+	new StreamListItem(&MavlinkStreamDepth::new_instance, &MavlinkStreamDepth::get_name_static, &MavlinkStreamDepth::get_id_static),
 	new StreamListItem(&MavlinkStreamADSBVehicle::new_instance, &MavlinkStreamADSBVehicle::get_name_static, &MavlinkStreamADSBVehicle::get_id_static),
 	new StreamListItem(&MavlinkStreamCollision::new_instance, &MavlinkStreamCollision::get_name_static, &MavlinkStreamCollision::get_id_static),
 	new StreamListItem(&MavlinkStreamWind::new_instance, &MavlinkStreamWind::get_name_static, &MavlinkStreamWind::get_id_static),
@@ -3953,3 +4025,4 @@ const StreamListItem *streams_list[] = {
 	new StreamListItem(&MavlinkStreamGroundTruth::new_instance, &MavlinkStreamGroundTruth::get_name_static, &MavlinkStreamGroundTruth::get_id_static),
 	nullptr
 };
+

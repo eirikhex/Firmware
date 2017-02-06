@@ -79,6 +79,7 @@
 #include <uORB/topics/gps_inject_data.h>
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/collision_report.h>
+#include <uORB/topics/sensor_depth_calibration.h>
 
 
 #include "mavlink_ftp.h"
@@ -149,6 +150,7 @@ private:
 	void handle_message_battery_status(mavlink_message_t *msg);
 	void handle_message_serial_control(mavlink_message_t *msg);
 	void handle_message_logging_ack(mavlink_message_t *msg);
+	void handle_message_depth_calibration(mavlink_message_t *msg);
 
 	void *receive_thread(void *arg);
 
@@ -221,6 +223,7 @@ private:
 	orb_advert_t _telemetry_status_pub;
 	orb_advert_t _rc_pub;
 	orb_advert_t _manual_pub;
+	orb_advert_t _depth_calib_pub;
 	orb_advert_t _land_detector_pub;
 	orb_advert_t _time_offset_pub;
 	orb_advert_t _follow_target_pub;

@@ -90,6 +90,8 @@ set(msg_file_names
 	sensor_baro.msg
 	sensor_combined.msg
 	sensor_correction.msg
+	sensor_depth.msg
+	sensor_depth_calibration.msg
 	sensor_gyro.msg
 	sensor_mag.msg
 	sensor_preflight.msg
