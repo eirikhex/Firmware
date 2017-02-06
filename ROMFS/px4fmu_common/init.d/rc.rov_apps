@@ -4,7 +4,9 @@
 # att & pos estimator, control
 #
 
-ms5837 start
+if ms5837 start
+then
+fi
 
 ekf2 start
 
