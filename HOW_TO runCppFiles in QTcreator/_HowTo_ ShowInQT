@@ -1,0 +1,6 @@
+The program must be viewable in QT. In order to do this, follow these steps: 
+
+1) go to src/Firmware/cmake/configs
+2) Open nuttx_px4fmu-v2_default.cmake 
+3) Somewhere in this file, insert <src_subfolder_name>/<folder_name>, similar to what you already entered in CMakeLists 
+(see HowToMakeCMakeLists.txt if you are not certain what this means)

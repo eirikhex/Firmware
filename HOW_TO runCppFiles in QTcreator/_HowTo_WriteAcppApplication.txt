@@ -1,0 +1,10 @@
+#include <string.h> //and so on
+
+//This is very important to include!
+extern "C" __EXPORT int applicationName_main(int argc, char *argv[]);
+
+int applicationName_main(int argc, char *argv[])
+{
+    PX4_INFO("Greetings!");
+    return OK;
+}

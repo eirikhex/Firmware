@@ -1,0 +1,15 @@
+#How to add a px4 module, i.e. a c/c++ program
+#If you want to write a c++ application, check out the HowTo
+
+#Create a .txt-file named CMakeLists.txt in the folder with your application (your .c/.cpp files (and .h files))
+#Add the following 
+
+px4_add_module(
+	MODULE <src_subfolder_name>__<folder_name>
+	MAIN   <name_of_main_fnc> #You may have to add <_main> at the end of <name_of_main_fnc>
+	SRCS
+		<name_of_cpp_file.cpp>
+		<name_of_c_file.c>
+	DEPENDS
+		platforms__common
+	)
