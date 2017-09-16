@@ -18,8 +18,8 @@
 
 set VEHICLE_TYPE uw_drone
 
-set MIXER bluerov2
-set MIXER_AUX bluerov2
+set MIXER IO_pass
+set MIXER_AUX bluerov2_pass
 set PWM_OUT 12345678
 set PWM_RATE 400
 set PWM_AUX_OUT 123456

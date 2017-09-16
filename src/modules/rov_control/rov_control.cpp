@@ -54,6 +54,7 @@
 
 #include <uORB/uORB.h>
 #include <uORB/topics/manual_control_setpoint.h>
+#include <uORB/topics/input_rc.h>
 #include <uORB/topics/actuator_controls.h>
 #include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/debug_key_value.h>
@@ -96,6 +97,7 @@ private:
 
 	int		_params_sub;			/**< parameter updates subscription */
 	int		_manual_control_sp_sub;	/**< manual control setpoint subscription */
+	int		_rc_sub;	/**< rc subscription */
 	int		_armed_sub;				/**< arming status subscription */
 
 	orb_advert_t	_actuators_0_pub;		/**< attitude actuator controls publication */
@@ -103,6 +105,7 @@ private:
 	orb_id_t _actuators_id;	/**< pointer to correct actuator controls0 uORB metadata structure */
 
 	struct manual_control_setpoint_s	_manual_control_sp;	/**< manual control setpoint */
+	struct input_rc_s 			_rc;
 	struct actuator_controls_s			_actuators;			/**< actuator controls */
 	struct actuator_armed_s				_armed;				/**< actuator arming status */
 	
@@ -113,6 +116,11 @@ private:
 	 * Check for changes in manual inputs.
 	 */
 	void		vehicle_manual_poll();
+
+	/**
+	 * Check for changes in rc inputs.
+	 */
+	void		rc_poll();
 
 	/**
 	 * Check for arming status updates.
@@ -149,6 +157,7 @@ ROVControl::ROVControl():
 	/* subscriptions */
 	_params_sub(-1),
 	_manual_control_sp_sub(-1),
+	_rc_sub(-1),
 	_armed_sub(-1),
 
 	/* publications */
@@ -156,6 +165,7 @@ ROVControl::ROVControl():
 	_actuators_id(0),
 
 	_manual_control_sp{},
+	_rc{},
 	_actuators{},
 	_armed{},
 
@@ -199,12 +209,14 @@ ROVControl::task_main()
 	_manual_control_sp_sub = orb_subscribe(ORB_ID(manual_control_setpoint));
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
 	_armed_sub = orb_subscribe(ORB_ID(actuator_armed));
+	_rc_sub = orb_subscribe(ORB_ID(input_rc));
 
 
 	_actuators_id = ORB_ID(actuator_controls_0);
 
 
 	vehicle_manual_poll();
+	rc_poll();
 	arming_status_poll();
 	parameters_update();
 
@@ -213,7 +225,7 @@ ROVControl::task_main()
 	px4_pollfd_struct_t fds[2];
 
 	/* Setup of loop */
-	fds[0].fd = _manual_control_sp_sub;
+	fds[0].fd = _rc_sub;
 	fds[0].events = POLLIN;
 	fds[1].fd = _params_sub;
 	fds[1].events = POLLIN;
@@ -260,29 +272,69 @@ ROVControl::task_main()
 		}
 
 		/* only run controller if attitude changed */
+		
 		if (fds[0].revents & POLLIN) {
 			static uint64_t last_run = 0;
 			float deltaT = (hrt_absolute_time() - last_run) / 1000000.0f;
 			last_run = hrt_absolute_time();
 
-			/* guard against too large deltaT's */
+			// guard against too large deltaT's 
 			if (deltaT > 1.0f) {
 				deltaT = 0.01f;
 			}
 
-			vehicle_manual_poll();
+			rc_poll();
 
-			_actuators.control[0] = _manual_control_sp.x;
-			_actuators.control[1] = _manual_control_sp.y;
-			_actuators.control[2] = _manual_control_sp.z;
-			_actuators.control[3] = 0.0;
-			_actuators.control[4] = 0.0;
-			_actuators.control[5] = _manual_control_sp.r;
+			_actuators.control[0] = ((float)(_rc.values[0]) -1500) / 400.0f;
+			_actuators.control[1] = ((float)(_rc.values[1]) -1500) / 400.0f;
+			_actuators.control[2] = ((float)(_rc.values[2]) -1500) / 400.0f;
+			_actuators.control[3] = ((float)(_rc.values[3]) -1500) / 400.0f;
+			_actuators.control[4] = ((float)(_rc.values[4]) -1500) / 400.0f;
+			_actuators.control[5] = ((float)(_rc.values[5]) -1500) / 400.0f;
+			_actuators.control[6] = ((float)(_rc.values[6]) -1500) / 400.0f;
+			_actuators.control[7] = ((float)(_rc.values[7]) -1500) / 400.0f;
 			_actuators.timestamp = hrt_absolute_time();
 
 			usleep(100);
 
-			/* publish actuator data*/
+			// publish actuator data
+			if (_actuators_0_pub != nullptr) {
+				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+ 				dbg.value = (float)_manual_control_sp.z;
+ 				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+			} 
+			else if (_actuators_id) {
+				_actuators_0_pub = orb_advertise(_actuators_id, &_actuators);
+				dbg.value = (float)999.09;
+				orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
+			} 
+		}
+		
+		/*
+		if (fds[2].revents & POLLIN) {
+			static uint64_t last_run = 0;
+			float deltaT = (hrt_absolute_time() - last_run) / 1000000.0f;
+			last_run = hrt_absolute_time();
+
+			// guard against too large deltaT's 
+			if (deltaT > 1.0f) {
+				deltaT = 0.01f;
+			}
+
+			rc_poll();
+
+			_actuators.control[0] = (float)_rc.values[0] / 1000.0f;
+			_actuators.control[1] = (float)_rc.values[1] / 1000.0f;
+			_actuators.control[2] = (float)_rc.values[2] / 1000.0f;
+			_actuators.control[3] = (float)_rc.values[3] / 1000.0f;
+			_actuators.control[4] = (float)_rc.values[4] / 1000.0f;
+			_actuators.control[5] = (float)_rc.values[5] / 1000.0f;
+			_actuators.timestamp = hrt_absolute_time();
+
+			usleep(100);
+
+			// publish actuator data
 			if (_actuators_0_pub != nullptr) {
 				orb_publish(_actuators_id, _actuators_0_pub, &_actuators);
  				dbg.value = (float)_manual_control_sp.z;
@@ -296,7 +348,7 @@ ROVControl::task_main()
 			} 
 		}
 
-		
+		*/
 
 
 		perf_end(_loop_perf);
@@ -319,6 +371,19 @@ ROVControl::vehicle_manual_poll()
 
 	if (updated) {
 		orb_copy(ORB_ID(manual_control_setpoint), _manual_control_sp_sub, &_manual_control_sp);
+	}
+}
+
+void
+ROVControl::rc_poll()
+{
+	bool updated;
+
+	/* get pilots inputs */
+	orb_check(_rc_sub, &updated);
+
+	if (updated) {
+		orb_copy(ORB_ID(input_rc), _rc_sub, &_rc);
 	}
 }
 
